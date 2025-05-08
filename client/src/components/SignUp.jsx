@@ -1,133 +1,159 @@
-import React from "react";
-import { Link } from 'react-router-dom';
-function SignUp(params) {
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
+import { updateProfile } from "firebase/auth";
+import { getFirestore, doc, setDoc, serverTimestamp } from "firebase/firestore";
+import { toast } from "react-toastify";
+
+function SignUp() {
+  const { signup } = useAuth();
+  const navigate = useNavigate();
+  const db = getFirestore();
+
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  const handleSignup = async (e) => {
+    e.preventDefault();
+
+    const trimmedFirstName = firstName.trim();
+    const trimmedLastName = lastName.trim();
+    const trimmedEmail = email.trim().toLowerCase();
+
+    if (password !== confirmPassword) {
+      toast.error("Passwords do not match.");
+      return;
+    }
+
+    try {
+      const userCredential = await signup(trimmedEmail, password);
+      const user = userCredential.user;
+
+      await updateProfile(user, {
+        displayName: `${trimmedFirstName} ${trimmedLastName}`,
+      });
+
+      await setDoc(doc(db, "users", user.uid), {
+        uid: user.uid,
+        firstName: trimmedFirstName,
+        lastName: trimmedLastName,
+        email: trimmedEmail,
+        createdAt: serverTimestamp(),
+      });
+
+      toast.success("Account created successfully!");
+      navigate("/homepage");
+    } catch (error) {
+      console.error("Signup error:", error);
+      toast.error("Error: " + error.message);
+    }
+  };
+
   return (
-    <>
-      <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
-        <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-          <img
-            alt="Your Company"
-            src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600"
-            className="mx-auto h-10 w-auto"
-          />
-          <h2 className="mt-10 text-center text-2xl/9 font-bold tracking-tight text-gray-900">
-            Sign in to your account
-          </h2>
-        </div>
-
-        <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-          <form action="#" method="POST" className="space-y-6">
-            <div>
-              <label
-                htmlFor="Fname"
-                className="block text-sm/6 font-medium text-gray-900"
-              >
-                First Name
-              </label>
-              <div className="mt-2">
-                <input
-                  id="Fname"
-                  name="Fname"
-                  type="Fname"
-                  required
-                  autoComplete="Fname"
-                  className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label
-                htmlFor="Fname"
-                className="block text-sm/6 font-medium text-gray-900"
-              >
-                Last Name
-              </label>
-              <div className="mt-2">
-                <input
-                  id="Lname"
-                  name="Lname"
-                  type="Lname"
-                  required
-                  autoComplete="Lname"
-                  className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label
-                htmlFor="email"
-                className="block text-sm/6 font-medium text-gray-900"
-              >
-                Email address
-              </label>
-              <div className="mt-2">
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  required
-                  autoComplete="email"
-                  className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-                />
-              </div>
-            </div>
-
-            <div>
-              <div className="flex items-center justify-between">
-                <label
-                  htmlFor="password"
-                  className="block text-sm/6 font-medium text-gray-900"
-                >
-                  Password
-                </label>
-              </div>
-              <div className="mt-2">
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  required
-                  autoComplete="current-password"
-                  className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-                />
-              </div>
-            </div>
-
-            <div>
-              <div className="flex items-center justify-between">
-                <label
-                  htmlFor="password"
-                  className="block text-sm/6 font-medium text-gray-900"
-                >
-                  Confirm Password
-                </label>
-              </div>
-              <div className="mt-2">
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  required
-                  autoComplete="current-password"
-                  className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-                />
-              </div>
-            </div>
-
-            <div>
-              <button
-                type="submit"
-                className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-              >
-                Sign Up
-              </button>
-            </div>
-          </form>
-        </div>
+    <div style={{ maxWidth: "400px", margin: "0 auto", padding: "2rem" }}>
+      <div style={{ textAlign: "center" }}>
+        <h2 style={{ marginTop: "1rem", fontSize: "24px", fontWeight: "bold" }}>
+          Sign up for an account
+        </h2>
       </div>
-    </>
+
+      <form onSubmit={handleSignup} style={{ marginTop: "2rem" }}>
+        <div style={{ marginBottom: "1rem" }}>
+          <label htmlFor="Fname">First Name</label>
+          <input
+            id="Fname"
+            name="Fname"
+            type="text"
+            required
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
+            autoComplete="given-name"
+            style={{ display: "block", width: "100%", padding: "0.5rem", marginTop: "0.25rem" }}
+          />
+        </div>
+
+        <div style={{ marginBottom: "1rem" }}>
+          <label htmlFor="Lname">Last Name</label>
+          <input
+            id="Lname"
+            name="Lname"
+            type="text"
+            required
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
+            autoComplete="family-name"
+            style={{ display: "block", width: "100%", padding: "0.5rem", marginTop: "0.25rem" }}
+          />
+        </div>
+
+        <div style={{ marginBottom: "1rem" }}>
+          <label htmlFor="email">Email address</label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            autoComplete="email"
+            style={{ display: "block", width: "100%", padding: "0.5rem", marginTop: "0.25rem" }}
+          />
+        </div>
+
+        <div style={{ marginBottom: "1rem" }}>
+          <label htmlFor="password">Password</label>
+          <input
+            id="password"
+            name="password"
+            type="password"
+            required
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            autoComplete="new-password"
+            style={{ display: "block", width: "100%", padding: "0.5rem", marginTop: "0.25rem" }}
+          />
+        </div>
+
+        <div style={{ marginBottom: "1rem" }}>
+          <label htmlFor="confirm-password">Confirm Password</label>
+          <input
+            id="confirm-password"
+            name="confirm-password"
+            type="password"
+            required
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            autoComplete="new-password"
+            style={{ display: "block", width: "100%", padding: "0.5rem", marginTop: "0.25rem" }}
+          />
+        </div>
+
+        <button
+          type="submit"
+          style={{
+            width: "100%",
+            padding: "0.75rem",
+            backgroundColor: "#4F46E5",
+            color: "white",
+            border: "none",
+            fontWeight: "bold",
+            cursor: "pointer",
+          }}
+        >
+          Sign Up
+        </button>
+      </form>
+
+      <p style={{ marginTop: "1rem", textAlign: "center", fontSize: "14px", color: "#555" }}>
+        Already have an account?{" "}
+        <Link to="/signin" style={{ color: "#4F46E5", fontWeight: "bold" }}>
+          Sign In
+        </Link>
+      </p>
+    </div>
   );
 }
 

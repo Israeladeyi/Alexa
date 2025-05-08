@@ -1,90 +1,96 @@
-import React from "react";
-import { Link } from 'react-router-dom';
-function SignIn(params) {
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+
+
+function SignIn() {
+  const navigate = useNavigate();
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+
+  const handleSignin = async (e) => {
+    e.preventDefault();
+    setError("");
+
+    try {
+      const user = await signin(email, password);
+      console.log("Signed in user:", user);
+      navigate("/homepage");
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
   return (
-    <>
-      <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
-        <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-          <img
-            alt="Your Company"
-            src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600"
-            className="mx-auto h-10 w-auto"
-          />
-          <h2 className="mt-10 text-center text-2xl/9 font-bold tracking-tight text-gray-900">
-            Sign in to your account
-          </h2>
-        </div>
-
-        <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-          <form action="#" method="POST" className="space-y-6">
-            <div>
-              <label
-                htmlFor="email"
-                className="block text-sm/6 font-medium text-gray-900"
-              >
-                Email address
-              </label>
-              <div className="mt-2">
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  required
-                  autoComplete="email"
-                  className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-                />
-              </div>
-            </div>
-
-            <div>
-              <div className="flex items-center justify-between">
-                <label
-                  htmlFor="password"
-                  className="block text-sm/6 font-medium text-gray-900"
-                >
-                  Password
-                </label>
-                <div className="text-sm">
-                  <a
-                    href="#"
-                    className="font-semibold text-indigo-600 hover:text-indigo-500"
-                  >
-                    Forgot password?
-                  </a>
-                </div>
-              </div>
-              <div className="mt-2">
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  required
-                  autoComplete="current-password"
-                  className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-                />
-              </div>
-            </div>
-
-            <div>
-              <button
-                type="submit"
-                className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-              >
-                Sign in
-              </button>
-            </div>
-          </form>
-
-          <p className="mt-10 text-center text-sm/6 text-gray-500">
-          <Link to="/signup"  className="font-semibold text-indigo-600 hover:text-indigo-500">  Create Account</Link>
-           
-           
-            
-            
-          </p>
-        </div>
+    <div style={{ maxWidth: "400px", margin: "0 auto", padding: "2rem" }}>
+      <div style={{ textAlign: "center" }}>
+        <h2 style={{ marginTop: "1rem", fontSize: "24px", fontWeight: "bold" }}>
+          Sign in to your account
+        </h2>
       </div>
-    </>
+
+      <form onSubmit={handleSignin} style={{ marginTop: "2rem" }}>
+        <div style={{ marginBottom: "1rem" }}>
+          <label htmlFor="email">Email address</label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            required
+            autoComplete="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            style={{ display: "block", width: "100%", padding: "0.5rem", marginTop: "0.25rem" }}
+          />
+        </div>
+
+        <div style={{ marginBottom: "1rem" }}>
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <label htmlFor="password">Password</label>
+            <a href="#" style={{ fontSize: "12px" }}>Forgot password?</a>
+          </div>
+          <input
+            id="password"
+            name="password"
+            type="password"
+            required
+            autoComplete="current-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            style={{ display: "block", width: "100%", padding: "0.5rem", marginTop: "0.25rem" }}
+          />
+        </div>
+
+        <button
+          type="submit"
+          style={{
+            width: "100%",
+            padding: "0.75rem",
+            backgroundColor: "#4F46E5",
+            color: "white",
+            border: "none",
+            fontWeight: "bold",
+            cursor: "pointer",
+          }}
+        >
+          Sign in
+        </button>
+
+        {error && (
+          <p style={{ color: "red", marginTop: "1rem", textAlign: "center" }}>
+            {error}
+          </p>
+        )}
+      </form>
+
+      <p style={{ marginTop: "1rem", textAlign: "center", fontSize: "14px", color: "#555" }}>
+        <Link to="/signup" style={{ color: "#4F46E5", fontWeight: "bold" }}>
+          Create Account
+        </Link>
+      </p>
+    </div>
   );
 }
+
 export default SignIn;

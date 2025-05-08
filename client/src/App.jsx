@@ -1,26 +1,11 @@
-import { useState } from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import SignIn from "./components/signIn";
-import SignUp from "./components/signUp";
-
+import react from "react";
+import router from "./Router";
 function App() {
-  return (
-    <>
-      <BrowserRouter>
-        <Routes>
-          {/* Redirect root → login */}
-          <Route path="/" element={<Navigate to="/signin" replace />} />
-
-          {/* Only one of these will render depending on URL */}
-          <Route path="/signin" element={<SignIn />} />
-          <Route path="/signup" element={<SignUp />} />
-
-          {/* Catch-all: redirect to login */}
-          <Route path="*" element={<Navigate to="/signup" replace />} />
-        </Routes>
-      </BrowserRouter>
-    </>
-  );
+    return (
+        <>
+            <router />
+        </>
+    );
 }
 
 export default App;
